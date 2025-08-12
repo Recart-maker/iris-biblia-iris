@@ -1,6 +1,6 @@
 {
     "name": "Biblia Móvil",
-    "short_name": "Biblia",
+    "short_name": "Iris Biblia Iris",
     "description": "Una aplicación web de la Biblia con botones táctiles para navegar y leer.",
     "start_url": "./index.html",
     "scope": "./",

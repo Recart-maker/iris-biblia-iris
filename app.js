@@ -9,6 +9,18 @@ let versiculoActual = 1;
 let speakingContext = "capitulo";
 let wakeLock = null;
 
+// Función para solicitar un bloqueo de pantalla
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log('Bloqueo de pantalla activo.');
+        }
+    } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+    }
+}
+
 // Función para liberar el bloqueo de pantalla
 function releaseWakeLock() {
     if (wakeLock !== null) {
@@ -117,7 +129,6 @@ function mostrarVersiculoActual() {
     }
 }
 
-// Funciones de lectura
 function leerVersiculoActual() {
     speakingContext = "versiculo";
     if (synth.speaking) {
@@ -178,7 +189,7 @@ function leerLibroCompleto() {
         if (versiculoTextoElemento) versiculoTextoElemento.innerHTML = `El libro de ${libroActual} no existe.`;
         return;
     }
-    
+
     requestWakeLock(); // Solicita el bloqueo al iniciar la lectura del libro
 
     const capitulos = Object.keys(libro).sort((a, b) => parseInt(a) - parseInt(b));

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector de Biblia</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <button id="prev-chapter" class="bible-button top-btn">Capítulo Anterior</button>
+    <button id="next-chapter" class="bible-button bottom-btn">Capítulo Siguiente</button>
+    <button id="prev-verse" class="bible-button left-btn">Versículo Anterior</button>
+    <button id="next-verse" class="bible-button right-btn">Versículo Siguiente</button>
+
+    <div class="main-content-container">
+        <button id="reference-btn" class="reference-container">
+            <p id="reference">Génesis 1:1</p>
+        </button>
+
+        <button id="verse-text-btn" class="verse-container">
+            <div id="verse-text">
+                <p class="verse-text-line">En el principio, creó Dios los cielos y la tierra.</p>
+            </div>
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Fallo en el registro del Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

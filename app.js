@@ -7,29 +7,7 @@ let libroActual = "Génesis";
 let capituloActual = 1;
 let versiculoActual = 1;
 let speakingContext = "capitulo";
-let wakeLock = null;
-
-// Función para solicitar un bloqueo de pantalla
-async function requestWakeLock() {
-    try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-            console.log('Bloqueo de pantalla activo.');
-        }
-    } catch (err) {
-        console.error(`${err.name}, ${err.message}`);
-    }
-}
-
-// Función para liberar el bloqueo de pantalla
-function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release();
-        wakeLock = null;
-        console.log('Bloqueo de pantalla liberado.');
-    }
-}
-
+let wakeLock = null; // Variable para el Wake Lock
 
 // Elementos del DOM
 let referenceBtn;
@@ -58,6 +36,29 @@ if ('serviceWorker' in navigator) {
 const synth = window.speechSynthesis;
 const utterThis = new SpeechSynthesisUtterance();
 
+// FUNCIONES PARA WAKE LOCK (DEBEN ESTAR FUERA DE DOMContentLoaded)
+// Función para solicitar un bloqueo de pantalla
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log('Bloqueo de pantalla activo.');
+        }
+    } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+    }
+}
+
+// Función para liberar el bloqueo de pantalla
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+        console.log('Bloqueo de pantalla liberado.');
+    }
+}
+
+// LÓGICA DE LA BIBLIA
 // Función para cargar los datos de la Biblia desde un archivo JSON
 async function loadBibliaData() {
     try {
@@ -78,22 +79,22 @@ function leerConKaraoke(textoCompleto, onEndCallback) {
     if (synth.speaking) {
         synth.cancel();
     }
-    
+
     const palabras = textoCompleto.split(/\s+/).filter(word => word.length > 0);
     const textoHTML = palabras.map(word => `<span class="word-span">${word}</span>`).join(' ');
-    
+
     if (versiculoTextoElemento) {
         versiculoTextoElemento.innerHTML = textoHTML;
     }
-    
+
     const palabraSpans = document.querySelectorAll('#verse-text .word-span');
     let palabraIndex = 0;
-    
+
     utterThis.text = textoCompleto;
     utterThis.lang = 'es-ES';
     utterThis.rate = 0.9;
     utterThis.pitch = 1.0;
-    
+
     utterThis.onboundary = (event) => {
         if (event.name === 'word') {
             if (palabraIndex > 0) {
@@ -105,14 +106,14 @@ function leerConKaraoke(textoCompleto, onEndCallback) {
             }
         }
     };
-    
+
     utterThis.onend = () => {
         if(palabraSpans.length > 0) {
             palabraSpans.forEach(span => span.classList.remove('highlight'));
         }
         if(onEndCallback) onEndCallback();
     };
-    
+
     synth.speak(utterThis);
 }
 
@@ -142,11 +143,11 @@ function leerVersiculoActual() {
     if (citaBiblicaElemento) citaBiblicaElemento.textContent = `${libroActual} ${capituloActual}:${versiculoActual}`;
     const textoAnuncio = `Libro de ${libroActual}, capítulo ${capituloActual}, versículo ${versiculoActual}. `;
 
-    requestWakeLock(); // Solicita el bloqueo al iniciar la lectura
+    requestWakeLock();
 
     leerConKaraoke(textoAnuncio + textoVersiculo, () => {
         console.log("Lectura del versículo completa.");
-        releaseWakeLock(); // Libera el bloqueo al finalizar
+        releaseWakeLock();
     });
 }
 
@@ -169,12 +170,12 @@ function leerCapituloCompleto() {
         versiculoTextoElemento.innerHTML = textoVisualHTML;
     }
 
-    requestWakeLock(); // Solicita el bloqueo al iniciar la lectura
+    requestWakeLock();
 
     const textoAnuncio = `Libro de ${libroActual}, capítulo ${capituloActual}. `;
     leerConKaraoke(textoAnuncio + textoCompleto, () => {
         console.log("Lectura del capítulo completa.");
-        releaseWakeLock(); // Libera el bloqueo al finalizar
+        releaseWakeLock();
     });
 }
 
@@ -190,7 +191,7 @@ function leerLibroCompleto() {
         return;
     }
 
-    requestWakeLock(); // Solicita el bloqueo al iniciar la lectura del libro
+    requestWakeLock();
 
     const capitulos = Object.keys(libro).sort((a, b) => parseInt(a) - parseInt(b));
     let capituloIndex = 0;
@@ -216,7 +217,7 @@ function leerLibroCompleto() {
             });
         } else {
             console.log("Lectura del libro completa.");
-            releaseWakeLock(); // Libera el bloqueo solo cuando el libro entero haya terminado
+            releaseWakeLock();
         }
     };
 
@@ -520,16 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
             startSpeechRecognition();
         });
     }
-
-// Función para solicitar un bloqueo de pantalla
-async function requestWakeLock() {
-    try {
-        wakeLock = await navigator.wakeLock.request('screen');
-        console.log('Bloqueo de pantalla activo.');
-    } catch (err) {
-        console.error(`${err.name}, ${err.message}`);
-    }
-}
 
 
     loadBibliaData();
